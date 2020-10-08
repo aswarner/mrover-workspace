@@ -85,6 +85,8 @@ private:
 
     bool isObstacleDetected() const;
 
+    NavState executeVerifyObstacle();
+
     double getOptimalAvoidanceAngle() const;
 
     double getOptimalAvoidanceDistance() const;

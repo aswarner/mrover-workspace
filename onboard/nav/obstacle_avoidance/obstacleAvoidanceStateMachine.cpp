@@ -45,7 +45,6 @@ NavState ObstacleAvoidanceStateMachine::run( Rover* phoebe, const rapidjson::Doc
         {
             return executeTurnAroundObs( phoebe, roverConfig );
         }
-
         case NavState::DriveAroundObs:
         case NavState::SearchDriveAroundObs:
         {

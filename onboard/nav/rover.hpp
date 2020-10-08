@@ -49,6 +49,8 @@ enum class NavState
     DriveAroundObs = 31,
     SearchTurnAroundObs = 32,
     SearchDriveAroundObs = 33,
+    VerifyObstacle = 34,
+    SearchVerifyObstacle = 35,
 
     // Gate Search States
     GateSpin = 40,
@@ -76,7 +78,8 @@ enum class DriveStatus
 {
     Arrived,
     OnCourse,
-    OffCourse
+    OffCourse,
+    slowDrive
 }; // DriveStatus
 
 // This class creates a Rover object which can perform operations that
@@ -161,9 +164,11 @@ public:
 
     Rover( const rapidjson::Document& config, lcm::LCM& lcm_in );
 
+    DriveStatus slowDrive( const Odometry& destination );
+
     DriveStatus drive( const Odometry& destination );
 
-    DriveStatus drive( const double distance, const double bearing, const bool target = false );
+    DriveStatus drive( const double distance, const double bearing, const bool target = false, double scalePower = 1.0 );
 
     void drive(const int direction, const double bearing);
 

@@ -39,7 +39,9 @@
 	{
 		"visionDistance": 3.0,
 		"fieldOfViewAngle": 110,
-		"fieldOfViewSafeAngle": 100
+		"fieldOfViewSafeAngle": 100,
+		"verifyTime": 1.5,
+		"verifyThreshold": 0.5
 	},
 
 	"lcmChannels":

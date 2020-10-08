@@ -163,7 +163,12 @@ void StateMachine::run()
                 nextState = mSearchStateMachine->run( mPhoebe, mRoverConfig );
                 break;
             }
-
+            case NavState::VerifyObstacle:
+            {
+                nextState = executeVerifyObstacle();
+                break;
+            }
+            case NavState::SearchVerifyObstacle:
             case NavState::TurnAroundObs:
             case NavState::SearchTurnAroundObs:
             case NavState::DriveAroundObs:
@@ -349,11 +354,11 @@ NavState StateMachine::executeTurn()
     }
     // If we should drop a repeater and have not already, add last
     // point where connection was good to front of path and turn
-    // if ( isAddRepeaterDropPoint() )
-    // {
-    //     addRepeaterDropPoint();
-    //     return NavState::RadioRepeaterTurn;
-    // }
+    if ( isAddRepeaterDropPoint() )
+    {
+        addRepeaterDropPoint();
+        return NavState::RadioRepeaterTurn;
+    }
 
     Odometry& nextPoint = mPhoebe->roverStatus().path().front().odom;
     if( mPhoebe->turn( nextPoint ) )
@@ -385,17 +390,15 @@ NavState StateMachine::executeDrive()
 
     // If we should drop a repeater and have not already, add last
     // point where connection was good to front of path and turn
-    // if ( isAddRepeaterDropPoint() )
-    // {
-    //     addRepeaterDropPoint();
-    //     return NavState::RadioRepeaterTurn;
-    // }
+    if ( isAddRepeaterDropPoint() )
+    {
+        addRepeaterDropPoint();
+        return NavState::RadioRepeaterTurn;
+    }
 
     if( isObstacleDetected() && !isWaypointReachable( distance ) )
     {
-        mObstacleAvoidanceStateMachine->updateObstacleElements( getOptimalAvoidanceAngle(),
-                                                                getOptimalAvoidanceDistance() );
-        return NavState::TurnAroundObs;
+        return NavState::VerifyObstacle;
     }
     DriveStatus driveStatus = mPhoebe->drive( nextWaypoint.odom );
     if( driveStatus == DriveStatus::Arrived )
@@ -464,6 +467,8 @@ string StateMachine::stringifyNavState() const
             { NavState::TurnToTarget, "Turn to Target" },
             { NavState::TurnedToTargetWait, "Turned to Target Wait" },
             { NavState::DriveToTarget, "Drive to Target" },
+            { NavState::VerifyObstacle, "Verify Obstacle"},
+            { NavState::SearchVerifyObstacle, "Search Verify Obstacle"},
             { NavState::TurnAroundObs, "Turn Around Obstacle"},
             { NavState::DriveAroundObs, "Drive Around Obstacle" },
             { NavState::SearchTurnAroundObs, "Search Turn Around Obstacle" },
@@ -491,6 +496,69 @@ bool StateMachine::isObstacleDetected() const
 {
     return mPhoebe->roverStatus().obstacle().detected;
 } // isObstacleDetected()
+
+
+// Determine whether obstacle is detected - slow down to collect data
+// If portion of obstacle detected messages is above threshold, execute next obstacle state
+// If portion of obstacle detected messaged is below threshold, go back to MAIN state machine
+NavState StateMachine::executeVerifyObstacle()
+{
+    //TODO: slow rover down
+    static bool started = false;
+    static time_t startTime;
+    static int trueCount = 0; //number of iterations that obstacle was detected
+    static int falseCount = 0; //number of iterations obs was not detected
+
+    // slow down speed as approaching waypoint
+    // ASSUMES obstacle far enough that rover won't hit it in 1.5 sec
+    const Waypoint& nextWaypoint = mPhoebe->roverStatus().path().front();
+    mPhoebe->slowDrive( nextWaypoint.odom );
+
+    if( !started ) //initialize starting time
+    {
+        startTime = time( nullptr );
+        started = true;
+    }
+
+    if ( mPhoebe->roverStatus().obstacle().detected )
+    {
+        ++trueCount;
+    }
+    else
+    {
+        ++falseCount;
+    }
+
+
+    double verifyTime = mRoverConfig[ "computerVision" ][ "verifyTime" ].GetDouble();
+    double verifyThreshold = mRoverConfig[ "computerVision" ][ "verifyThreshold" ].GetDouble();
+    if( difftime( time( nullptr ), startTime ) > verifyTime )
+    {
+        started = false; //reset for next time
+        trueCount = 0;
+        falseCount = 0;
+
+        //obstacle was probably detected, continue with avoidance
+        if ( trueCount / (trueCount + falseCount) >= verifyThreshold )
+        {
+            updateObstacleElements( getOptimalAvoidanceAngle(), getOptimalAvoidanceDistance() );
+
+            if( mPhoebe->roverStatus().currentState() == NavState::VerifyObstacle )
+            {
+                return NavState::TurnAroundObs;
+            }
+            return NavState::SearchTurnAroundObs;
+        }
+
+        //obstacle was probably not detected
+        if( mPhoebe->roverStatus().currentState() == NavState::VerifyObstacle )
+        {
+            return NavState::Drive;
+        }
+        return NavState::SearchDrive;
+    }
+    return NavState::VerifyObstacle;
+} //executeVerifyObstacle()
 
 // Returns the optimal angle to avoid the detected obstacle.
 double StateMachine::getOptimalAvoidanceAngle() const
@@ -534,7 +602,6 @@ void StateMachine::addRepeaterDropPoint()
 
     mPhoebe->roverStatus().path().push_front(way);
 } // addRepeaterDropPoint
-
 
 // TODOS:
 // [drive to target] obstacle and target

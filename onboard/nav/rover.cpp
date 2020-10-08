@@ -132,7 +132,8 @@ DriveStatus Rover::drive( const Odometry& destination )
 // determines which distance threshold to use.
 // The return value indicates if the rover has arrived or if it is
 // on-course or off-course.
-DriveStatus Rover::drive( const double distance, const double bearing, const bool target )
+// Accepts an optional input (default = 1) to scale the forward power.
+DriveStatus Rover::drive( const double distance, const double bearing, const bool target, double scalePower )
 {
     if( (!target && distance < mRoverConfig[ "navThresholds" ][ "waypointDistance" ].GetDouble()) ||
         (target && distance < mRoverConfig[ "navThresholds" ][ "targetDistance" ].GetDouble()) )
@@ -145,7 +146,7 @@ DriveStatus Rover::drive( const double distance, const double bearing, const boo
 
     if( fabs( destinationBearing - mRoverStatus.odometry().bearing_deg ) < mRoverConfig[ "navThresholds" ][ "drivingBearing" ].GetDouble() )
     {
-        double distanceEffort = mDistancePid.update( -1 * distance, 0 );
+        double distanceEffort = scalePower * mDistancePid.update( -1 * distance, 0 );
         double turningEffort = mBearingPid.update( mRoverStatus.odometry().bearing_deg, destinationBearing );
         publishJoystick( distanceEffort, turningEffort, false );
         return DriveStatus::OnCourse;
@@ -167,6 +168,17 @@ void Rover::drive(const int direction, const double bearing)
     const double turningEffort = mBearingPid.update(mRoverStatus.odometry().bearing_deg, destinationBearing);
     publishJoystick(distanceEffort, turningEffort, false);
 } // drive()
+
+
+// Sends a joystick command to drive forward from the current odometry
+// to the destination odometry with reduced power.
+DriveStatus Rover::slowDrive( const Odometry& destination )
+{
+    double distance = estimateNoneuclid( mRoverStatus.odometry(), destination );
+    double bearing = calcBearing( mRoverStatus.odometry(), destination );
+    drive( distance, bearing, false, 0.5 );
+    return DriveStatus::slowDrive;
+} // slowDrive()
 
 // Sends a joystick command to turn the rover toward the destination
 // odometry. Returns true if the rover has finished turning, false
