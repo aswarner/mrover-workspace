@@ -165,6 +165,7 @@ void StateMachine::run()
             }
             case NavState::VerifyObstacle:
             {
+                cout << "state is verify \n";
                 nextState = executeVerifyObstacle();
                 break;
             }
@@ -503,6 +504,7 @@ bool StateMachine::isObstacleDetected() const
 // If portion of obstacle detected messaged is below threshold, go back to MAIN state machine
 NavState StateMachine::executeVerifyObstacle()
 {
+    cout << "executing verify obstacle function \n";
     //TODO: slow rover down
     static bool started = false;
     static time_t startTime;
