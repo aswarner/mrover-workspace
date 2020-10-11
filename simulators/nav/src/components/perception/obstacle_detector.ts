@@ -238,20 +238,11 @@ export default class ObstacleDetector {
       angle = intervalHeap.maxOccupied + (minIntervalSize / 2);
     }
 
-    if (this.obsDist >= 0) {
-      return {
-        detected: false, /* deprecated so always false */
-        distance: this.obsDist, /* Will be -1 if okay to go straight ahead (i.e. bearing = 0) */
-        bearing: calcRelativeBearing(this.zedOdom.bearing_deg, angle)
-      };
-    }
-    else {
-      return {
-        detected: true, /* deprecated so always false */
-        distance: this.obsDist, /* Will be -1 if okay to go straight ahead (i.e. bearing = 0) */
-        bearing: calcRelativeBearing(this.zedOdom.bearing_deg, angle)
-      };
-    }
+    return {
+      detected: false,
+      distance: this.obsDist,
+      bearing: angle
+    };
   } /* computeObsMsg() */
 
   /************************************************************************************************
@@ -289,20 +280,11 @@ export default class ObstacleDetector {
       }
     }
 
-    if (this.obsDist >= 0) {
-      return {
-        detected: false, /* deprecated so always false */
-        distance: this.obsDist, /* Will be -1 if okay to go straight ahead (i.e. bearing = 0) */
-        bearing: calcRelativeBearing(this.zedOdom.bearing_deg, angle)
-      };
-    }
-    else {
-      return {
-        detected: true, /* deprecated so always false */
-        distance: this.obsDist, /* Will be -1 if okay to go straight ahead (i.e. bearing = 0) */
-        bearing: calcRelativeBearing(this.zedOdom.bearing_deg, angle)
-      };
-    }
+    return {
+      detected: false, /* deprecated so always false */
+      distance: this.obsDist, /* Will be -1 if okay to go straight ahead (i.e. bearing = 0) */
+      bearing: calcRelativeBearing(this.zedOdom.bearing_deg, angle)
+    };
   } /* isPathClear() */
 
   /* Is obs in a path in the direction of angle. Note that this does not take
