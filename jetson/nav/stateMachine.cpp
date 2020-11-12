@@ -282,12 +282,12 @@ void StateMachine::updateRoverStatus( TargetList targetList )
 // Updates the radio signal strength information of the rover's status.
 void StateMachine::updateRoverStatus( RadioSignalStrength radioSignalStrength )
 {
-    mNewRoverStatus.radioSignal() = radioSignalStrength;
+    mPhoebe->roverStatus().radio() = radioSignalStrength;
 } // updateRoverStatus( RadioSignalStrength )
 
 // Return true if we want to execute a loop in the state machine, false
 // otherwise.
-bool StateMachine::isRoverReady() const
+bool StateMachine::isRoverReady()
 {
     return mStateChanged || // internal data has changed
            mPhoebe->updateRover( mNewRoverStatus ) || // external data has changed
@@ -536,63 +536,6 @@ void StateMachine::addRepeaterDropPoint()
     mPhoebe->roverStatus().path().push_front(mRepeaterDropWaypoint);
 } // addRepeaterDropPoint
 
-<<<<<<< HEAD:jetson/nav/stateMachine.cpp
-=======
-// Executes the logic start counting number of iterations for how long it's been
-// since the rover has gotten a strong radio signal. If the signal drops
-// below the signalStrengthCutOff and the counting hasn't started, begin counting
-// iterations. Otherwise, the signal is good so the counting should be stopped.
-void StateMachine::updateRepeaterDropWaypoint()
-{
-    static unsigned int iterations = 0;
-
-    // start the iteration count if
-    if( !mIsDropState && // we are not in the process of dropping a repeater
-        !mRepeaterDropComplete && // we haven't already dropped one
-        mPhoebe->roverStatus().radioSignal().signal_strength > // and signal is above the threshold
-        mRoverConfig[ "radioRepeaterThresholds" ][ "signalStrengthCutOff" ].GetDouble())
-    {
-        iterations += 1;
-    }
-
-    double numIterations = mRoverConfig[ "radioRepeaterThresholds" ][ "numIterToUpdateRepeaterDropOdom" ].GetDouble();
-    if( iterations >= numIterations )
-    {
-        iterations = 0;
-        mRepeaterDropWaypoint.odom = mPhoebe->roverStatus().odometry();
-    }
-} // updateRepeaterDropWaypoint
-
-// Executes the logic starting the clock to time how long it's been
-// since the rover has gotten a strong radio signal. If the signal drops
-// below the signalStrengthCutOff and the timer hasn't started, begin the clock.
-// Otherwise, the signal is good so the timer should be stopped.
-void StateMachine::countTimeSinceStrongSignal()
-{
-    static bool started = false;
-    static time_t startTime;
-
-    // If we are not in off or done state, do not start timer.
-    // Also if we have not dropped a repeater, the time hasn't already started
-    // and our signal is below the threshold, start the timer
-    if( !mRepeaterDropComplete &&
-        !started &&
-        mPhoebe->roverStatus().radioSignal().signal_strength <=
-        mRoverConfig[ "radioRepeaterThresholds" ][ "signalStrengthCutOff" ].GetDouble())
-    {
-        startTime = time( nullptr );
-        started = true;
-    }
-
-    double waitTime = mRoverConfig[ "radioRepeaterThresholds" ][ "lowSignalWaitTime" ].GetDouble();
-    if( started && difftime( time( nullptr ), startTime ) > waitTime )
-    {
-        started = false;
-        mIsTimeToDropRepeater = true;
-    }
-} // countTimeSinceStrongSignal
-
->>>>>>> 4c11d546... [nav] updated rr logic for more robust algorithm:onboard/nav/stateMachine.cpp
 // TODOS:
 // [drive to target] obstacle and target
 // all of code, what to do in cases of both target and obstacle

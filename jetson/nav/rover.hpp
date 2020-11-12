@@ -84,23 +84,11 @@ enum class DriveStatus
 class Rover
 {
 public:
-    // This class holds all the status informatin of the rover.
+    // This class holds all the status information of the rover.
     class RoverStatus
     {
     public:
         RoverStatus();
-
-        RoverStatus(
-            NavState navState,
-            AutonState autonStateIn,
-            Bearing bearingIn,
-            Course courseIn,
-            Obstacle obstacleIn,
-            Odometry odometryIn,
-            Target targetIn,
-            Target target2In,
-            RadioSignalStrength signalIn
-            );
 
         NavState& currentState();
 
@@ -118,7 +106,7 @@ public:
 
         Target& target2();
 
-        RadioSignalStrength& radioSignal();
+        RadioSignalStrength& radio();
 
         unsigned getPathTargets();
 
@@ -173,7 +161,9 @@ public:
 
     void stop();
 
-    bool updateRover( RoverStatus newRoverStatus );
+    bool updateRover( RoverStatus& newRoverStatus );
+
+    void updateRepeater( RadioSignalStrength& radioSignal);
 
     RoverStatus& roverStatus();
 
@@ -182,6 +172,8 @@ public:
     PidLoop& bearingPid();
 
     const double longMeterInMinutes() const;
+
+    // bool isTimeToDropRepeater() const;
 
 private:
     /*************************************************************************/
@@ -196,6 +188,8 @@ private:
     bool isEqual( const Target& target1, const Target& target2 ) const;
 
     bool isTurningAroundObstacle( const NavState currentState ) const;
+
+
 
     /*************************************************************************/
     /* Private Member Variables */
@@ -220,6 +214,8 @@ private:
     // The conversion factor from arcminutes to meters. This is based
     // on the rover's current latitude.
     double mLongMeterInMinutes;
+
+    bool mTimeToDropRepeater;
 };
 
 #endif // ROVER_HPP

@@ -107,7 +107,7 @@ Rover::Rover( const rapidjson::Document& config, lcm::LCM& lcmObject )
     , mBearingPid( config[ "bearingPid" ][ "kP" ].GetDouble(),
                    config[ "bearingPid" ][ "kI" ].GetDouble(),
                    config[ "bearingPid" ][ "kD" ].GetDouble() )
-    , mTimeToDropRepeater( false )
+    //, mTimeToDropRepeater( false ) //variable exists in stateMachine
     , mLongMeterInMinutes( -1 )
 {
 } // Rover()
@@ -218,7 +218,7 @@ void Rover::stop()
 // updated, false otherwise.
 // TODO: unconditionally update everygthing. When abstracting search class
 // we got rid of NavStates TurnToTarget and DriveToTarget (oops) fix this soon :P
-bool Rover::updateRover( RoverStatus newRoverStatus )
+bool Rover::updateRover( RoverStatus& newRoverStatus )
 {
     // Rover currently on.
     if( mRoverStatus.autonState().is_auton )
@@ -240,6 +240,7 @@ bool Rover::updateRover( RoverStatus newRoverStatus )
             mRoverStatus.odometry() = newRoverStatus.odometry();
             mRoverStatus.target() = newRoverStatus.target();
             mRoverStatus.radio() = newRoverStatus.radio();
+            //revisit, standardize
             updateRepeater(mRoverStatus.radio());
             return true;
         }
@@ -274,7 +275,7 @@ const double Rover::longMeterInMinutes() const
 // since the rover has gotten a strong radio signal. If the signal drops
 // below the signalStrengthCutOff and the timer hasn't started, begin the clock.
 // Otherwise, the signal is good so the timer should be stopped.
-void Rover::updateRepeater(RadioSignalStrength& radioSignal)
+void Rover::updateRepeater( RadioSignalStrength& radioSignal)
 {
     static bool started = false;
     static time_t startTime;
@@ -298,10 +299,12 @@ void Rover::updateRepeater(RadioSignalStrength& radioSignal)
 // Returns whether or not enough time has passed to drop a radio repeater.
 // If it has been longer than the lowSignalWaitTime since a good signal strength,
 // return true. Otherwise, it is not time yet and we should keep waiting and return false.
-bool Rover::isTimeToDropRepeater()
-{
-    return mTimeToDropRepeater;
-}
+
+//TODO: should be used?
+// bool Rover::isTimeToDropRepeater() const
+// {
+//     return mTimeToDropRepeater;
+// }
 
 // Gets the rover's status object.
 Rover::RoverStatus& Rover::roverStatus()
@@ -387,7 +390,3 @@ bool Rover::isTurningAroundObstacle( const NavState currentState ) const
     }
     return false;
 } // isTurningAroundObstacle()
-
-/*************************************************************************/
-/* TODOS */
-/*************************************************************************/

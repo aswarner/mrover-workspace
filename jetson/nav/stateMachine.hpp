@@ -61,7 +61,7 @@ private:
     /*************************************************************************/
     /* Private Member Functions */
     /*************************************************************************/
-    bool isRoverReady() const;
+    bool isRoverReady();
 
     void publishNavState() const;
 
@@ -93,8 +93,10 @@ private:
 
     void addRepeaterDropPoint();
 
+    //TODO: implement
     void updateRepeaterDropWaypoint();
 
+    //TODO: implement
     void countTimeSinceStrongSignal();
 
     /*************************************************************************/
