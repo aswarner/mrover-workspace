@@ -5,7 +5,7 @@
 
 class StateMachine;
 
-// This class is the representation of different 
+// This class is the representation of different
 // obstacle avoidance algorithms
 enum class ObstacleAvoidanceAlgorithm
 {
@@ -13,7 +13,7 @@ enum class ObstacleAvoidanceAlgorithm
 };
 
 // This class is the base class for the logic of the obstacle avoidance state machine
-class ObstacleAvoidanceStateMachine 
+class ObstacleAvoidanceStateMachine
 {
 public:
     /*************************************************************************/
@@ -27,7 +27,7 @@ public:
 
     void updateObstacleDistance( double distance );
 
-    void updateObstacleElements( double bearing, double distance );  
+    void updateObstacleElements( double bearing, double distance );
 
     NavState run( Rover* phoebe, const rapidjson::Document& roverConfig );
 
@@ -43,7 +43,7 @@ protected:
     /*************************************************************************/
     /* Protected Member Variables */
     /*************************************************************************/
-    
+
     // Pointer to rover State Machine to access member functions
     StateMachine* roverStateMachine;
 
@@ -63,8 +63,8 @@ protected:
     double mLastObstacleAngle;
 };
 
-// Creates an ObstacleAvoidanceStateMachine object based on the inputted obstacle 
-// avoidance algorithm. This allows for an an ease of transition between obstacle 
+// Creates an ObstacleAvoidanceStateMachine object based on the inputted obstacle
+// avoidance algorithm. This allows for an an ease of transition between obstacle
 // avoidance algorithms
 ObstacleAvoidanceStateMachine* ObstacleAvoiderFactory( StateMachine* roverStateMachine,
                                                        ObstacleAvoidanceAlgorithm algorithm );
