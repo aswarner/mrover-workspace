@@ -25,9 +25,9 @@ StateMachine::StateMachine( lcm::LCM& lcmObject )
     , mLcmObject( lcmObject )
     , mTotalWaypoints( 0 )
     , mCompletedWaypoints( 0 )
-    , mRepeaterDropComplete ( false )
-    , mIsTimeToDropRepeater ( false )
-    , mIsDropState ( false )
+    , mRepeaterDropComplete( false )
+    , mIsTimeToDropRepeater( false )
+    , mIsDropState( false )
     , mStateChanged( true )
 {
     ifstream configFile;
@@ -99,6 +99,7 @@ void StateMachine::updateObstacleElements( double bearing, double distance )
 // Will call the corresponding function based on the current state.
 void StateMachine::run()
 {
+    cout << "state: " << stringifyNavState() << "\n";
     publishNavState();
     if( isRoverReady() )
     {
@@ -109,6 +110,7 @@ void StateMachine::run()
         {
             nextState = NavState::Off;
             mPhoebe->roverStatus().currentState() = executeOff(); // turn off immediately
+            //call executeReset
             clear( mPhoebe->roverStatus().path() );
             if( nextState != mPhoebe->roverStatus().currentState() )
             {
@@ -228,6 +230,7 @@ void StateMachine::run()
             case NavState::Unknown:
             {
                 cerr << "Entered unknown state.\n";
+                executeOff();
                 exit(1);
             }
         } // switch
@@ -309,12 +312,21 @@ void StateMachine::publishNavState() const
     mLcmObject.publish( navStatusChannel, &navStatus );
 } // publishNavState()
 
+
+// Resets the rover when auton is off
+void StateMachine::executeReset()
+{
+    mRepeaterDropComplete = false;
+    return;
+}
+
 // Executes the logic for off. If the rover is turned on, it updates
 // the roverStatus and repeater drop point. If the course is empty,
 // the rover is done  with the course otherwise it will turn to the
 // first waypoing. Else the rover is still off.
 NavState StateMachine::executeOff()
 {
+    cout << "running off";
     if( mPhoebe->roverStatus().autonState().is_auton )
     {
         mCompletedWaypoints = 0;
@@ -328,6 +340,8 @@ NavState StateMachine::executeOff()
         return NavState::Turn;
     }
     mPhoebe->stop();
+    executeReset();
+    mPhoebe->resetRover();
     return NavState::Off;
 } // executeOff()
 
@@ -339,7 +353,7 @@ NavState StateMachine::executeDone()
     return NavState::Done;
 } // executeDone()
 
-// Executes the logic for the turning. If the sinal has been low enough for
+// Executes the logic for the turning. If the signal has been low enough for
 // enough time, turn to drop radio repeater. If the rover finishes turning,
 // it drives to the next Waypoint. Else the rover keeps turning to the Waypoint.
 NavState StateMachine::executeTurn()
@@ -524,7 +538,7 @@ bool StateMachine::isAddRepeaterDropPoint() const
 {
     return ( mPhoebe->roverStatus().currentState() != NavState::RadioRepeaterTurn &&
              mPhoebe->roverStatus().currentState() != NavState::RadioRepeaterDrive &&
-             mIsDropState &&
+             mIsTimeToDropRepeater &&
              !mRepeaterDropComplete );
 } //isAddRepeaterDropPoint
 
@@ -572,7 +586,7 @@ void StateMachine::countTimeSinceStrongSignal()
 {
     static bool started = false;
     static time_t startTime;
-
+    // cout <<"signal strength: " << mPhoebe->roverStatus().radio().signal_strength << endl;
     // If we are not in off or done state, do not start timer.
     // Also if we have not dropped a repeater, the time hasn't already started
     // and our signal is below the threshold, start the timer
@@ -581,6 +595,7 @@ void StateMachine::countTimeSinceStrongSignal()
         mPhoebe->roverStatus().radio().signal_strength <=
         mRoverConfig[ "radioRepeaterThresholds" ][ "signalStrengthCutOff" ].GetDouble())
     {
+        cout << "start count\n";
         startTime = time( nullptr );
         started = true;
     }
@@ -590,6 +605,7 @@ void StateMachine::countTimeSinceStrongSignal()
     {
         started = false;
         mIsTimeToDropRepeater = true;
+        cout <<"isTimeToDropRepeater";
     }
 } // countTimeSinceStrongSignal
 

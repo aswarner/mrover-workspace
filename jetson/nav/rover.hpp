@@ -173,6 +173,8 @@ public:
 
     const double longMeterInMinutes() const;
 
+    void resetRover();
+
     // bool isTimeToDropRepeater() const;
 
 private:

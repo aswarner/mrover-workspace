@@ -271,6 +271,13 @@ const double Rover::longMeterInMinutes() const
     return mLongMeterInMinutes;
 }
 
+// resets rover when auton is off
+void Rover::resetRover()
+{
+    return;
+}
+
+
 // Executes the logic starting the clock to time how long it's been
 // since the rover has gotten a strong radio signal. If the signal drops
 // below the signalStrengthCutOff and the timer hasn't started, begin the clock.

@@ -65,6 +65,8 @@ private:
 
     void publishNavState() const;
 
+    void executeReset();
+
     NavState executeOff();
 
     NavState executeDone();
