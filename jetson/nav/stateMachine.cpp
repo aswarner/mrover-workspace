@@ -99,7 +99,6 @@ void StateMachine::updateObstacleElements( double bearing, double distance )
 // Will call the corresponding function based on the current state.
 void StateMachine::run()
 {
-    cout << "state: " << stringifyNavState() << "\n";
     publishNavState();
     if( isRoverReady() )
     {
