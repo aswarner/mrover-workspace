@@ -173,9 +173,9 @@ const mutations = {
   },
 
   setTargetList: (roverState:RoverState, newTargetList:TargetListMessage):void => {
-    roverState.targetList = newTargetList;
-    roverState.targetListNoisy = createNoisyTargetList(newTargetList,
-                                                       roverState.noiseSetttings.percepNoise);
+    Object.assign(roverState.targetList, newTargetList);
+    Object.assign(roverState.targetListNoisy,
+                  createNoisyTargetList(newTargetList, roverState.noiseSetttings.percepNoise));
   },
 
   setZedGimbalCmd: (roverState:RoverState, newZedGimbalCmd:ZedGimbalPosition):void => {

@@ -118,7 +118,11 @@ export default class TargetDetector {
       };
     }
 
-    return [targetLeft, targetRight];
+    const targetList:TargetListMessage = [{ ...targetLeft }, { ...targetRight }];
+    console.log(targetLeft, targetRight);
+    console.log(targetList[0], targetList[1]);
+    console.log(targetList);
+    return targetList;
   } /* computeTargetList() */
 
   /* Update posts list on change. */

@@ -433,7 +433,6 @@ export default class NavSimulator extends Vue {
           obs = Object.assign(this.obstacleMessage, { type: 'Obstacle' });
         }
         this.publish('/obstacle', obs);
-
         const targetList:any = { targetList: this.targetList, type: 'TargetList' };
         targetList.targetList[0].type = 'Target';
         targetList.targetList[1].type = 'Target';
