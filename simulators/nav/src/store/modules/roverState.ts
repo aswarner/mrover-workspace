@@ -173,7 +173,10 @@ const mutations = {
   },
 
   setTargetList: (roverState:RoverState, newTargetList:TargetListMessage):void => {
-    Object.assign(roverState.targetList, newTargetList);
+    console.log(newTargetList);
+    console.log(newTargetList[0], newTargetList[1]);
+    Object.assign(roverState.targetList, [newTargetList[0], newTargetList[1]]);
+    console.log(roverState.targetList);
     Object.assign(roverState.targetListNoisy,
                   createNoisyTargetList({ ...newTargetList },
                                         roverState.noiseSetttings.percepNoise));

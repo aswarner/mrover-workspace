@@ -119,9 +119,11 @@ export default class TargetDetector {
     }
 
     const targetList:TargetListMessage = [{ ...targetLeft }, { ...targetRight }];
-    console.log(targetLeft, targetRight);
-    console.log(targetList[0], targetList[1]);
-    console.log(targetList);
+
+    // console.log(targetLeft, targetRight);
+    // console.log(targetList[0], targetList[1]);
+    // console.log([targetLeft, targetRight]);
+    // console.log(targetList);
     return targetList;
   } /* computeTargetList() */
 

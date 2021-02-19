@@ -251,7 +251,7 @@ export default class Perception extends Vue {
 
     /* Recompute targetList LCM */
     const targetList:TargetListMessage = this.targetDetector.computeTargetList();
-    this.setTargetList(targetList);
+    this.setTargetList([targetList[0], targetList[1]]);
   } /* computeVisibleTargets() */
 
   /************************************************************************************************
