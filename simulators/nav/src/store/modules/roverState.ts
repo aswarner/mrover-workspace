@@ -134,9 +134,9 @@ const getters = {
 
   radioStrength: (roverState:RoverState):number => roverState.radioSignalStrength,
 
-  targetList: (roverState:RoverState):TargetListMessage => roverState.targetList,
+  targetList: (roverState:RoverState):[] => roverState.targetList,
 
-  noisyTargetList: (roverState:RoverState):TargetListMessage => roverState.targetListNoisy,
+  noisyTargetList: (roverState:RoverState):[] => roverState.targetListNoisy,
 
   zedGimbalCmd: (roverState:RoverState):ZedGimbalPosition => roverState.zedGimbalCmd,
 
@@ -178,7 +178,7 @@ const mutations = {
     Object.assign(roverState.targetList, [newTargetList[0], newTargetList[1]]);
     console.log(roverState.targetList);
     Object.assign(roverState.targetListNoisy,
-                  createNoisyTargetList({ ...newTargetList },
+                  createNoisyTargetList([newTargetList[0], newTargetList[1]],
                                         roverState.noiseSetttings.percepNoise));
   },
 
