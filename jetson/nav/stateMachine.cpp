@@ -418,6 +418,11 @@ NavState StateMachine::executeDrive()
         {
             return NavState::RadioRepeaterDrive;
         }
+        // if target is detected and rover is within x meters of waypoint, OK to enter search state machine
+        if ( isTargetDetected( mPhoebe, mRoverConfig ) )
+        {
+            return NavState::TurnToTarget;
+        }
         return NavState::Drive;
     }
     // else driveStatus == DriveStatus::OffCourse (must turn to waypoint)
@@ -528,6 +533,25 @@ void StateMachine::addRepeaterDropPoint()
 
     mPhoebe->roverStatus().path().push_front(way);
 } // addRepeaterDropPoint
+
+
+// Returns true if a target is detected when the rover is within x meters of its destination waypoint
+// Intended to be used in non-search states to allow the state machine to shortcut into search states
+bool StateMachine::isTargetDetected( Rover* phoebe, const::rapidjson::Document& roverConfig )
+{
+    const Waypoint& nextWaypoint = phoebe->roverStatus().path().front();
+    double distanceToWaypoint = estimateNoneuclid( phoebe->roverStatus().odometry(), nextWaypoint.odom );
+    cout << "dist to waypoint: " << distanceToWaypoint << endl;
+    double searchThresh = roverConfig["navThresholds"]["waypointSearchDistance"].GetDouble();
+    cout << "searchThresh: " << searchThresh << endl;
+    bool isDetected = phoebe->roverStatus().target().distance >= 0 && distanceToWaypoint < searchThresh;
+    cout << "target distance: " << (phoebe->roverStatus().target().distance) << endl;
+    cout << "disttowaypoint < searchThresh: " << (distanceToWaypoint < searchThresh);
+    cout << "targetdetected: " << (phoebe->roverStatus().target().distance >= 0) << endl;
+    cout << "isDetected: " << isDetected << endl;
+    return isDetected;
+}
+
 
 // TODOS:
 // [drive to target] obstacle and target

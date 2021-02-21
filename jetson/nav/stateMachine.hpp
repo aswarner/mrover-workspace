@@ -93,6 +93,8 @@ private:
 
     void addRepeaterDropPoint();
 
+    bool isTargetDetected( Rover* phoebe, const::rapidjson::Document& roverConfig);
+
     /*************************************************************************/
     /* Private Member Variables */
     /*************************************************************************/
