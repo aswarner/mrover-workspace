@@ -20,7 +20,7 @@ public:
     /*************************************************************************/
     /* Public Member Functions */
     /*************************************************************************/
-    SearchStateMachine(StateMachine* stateMachine_);
+    SearchStateMachine( StateMachine* stateMachine_ );
 
     virtual ~SearchStateMachine() {}
 
@@ -36,11 +36,13 @@ private:
     /*************************************************************************/
     NavState executeSearchSpin( Rover* phoebe, const rapidjson::Document& roverConfig );
 
+    NavState executeSearchGimbal( Rover* phoebe, const rapidjson::Document& roverConfig );
+
     NavState executeRoverWait( Rover* phoebe, const rapidjson::Document& roverConfig );
 
     NavState executeSearchTurn( Rover* phoebe, const rapidjson::Document& roverConfig );
 
-    NavState executeSearchDrive( Rover* phoebe );
+    NavState executeSearchDrive( Rover* phoebe, const rapidjson::Document& roverConfig );
 
     NavState executeTurnToTarget( Rover* phoebe );
 
